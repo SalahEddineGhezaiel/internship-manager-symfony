@@ -39,6 +39,9 @@ security:
                 target: /
 
     access_control:
+        - { path: ^/etudiant/register, roles: PUBLIC_ACCESS }
+        - { path: ^/entreprise/register, roles: PUBLIC_ACCESS }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/entreprise, roles: ROLE_ENTREPRISE }
         - { path: ^/etudiant, roles: ROLE_ETUDIANT }
