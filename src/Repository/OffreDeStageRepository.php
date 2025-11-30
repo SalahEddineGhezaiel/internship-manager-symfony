@@ -16,20 +16,21 @@ class OffreDeStageRepository extends ServiceEntityRepository
         parent::__construct($registry, OffreDeStage::class);
     }
 
-    //    /**
-    //     * @return OffreDeStage[] Returns an array of OffreDeStage objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('o')
-    //            ->andWhere('o.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('o.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * @return OffreDeStage[] Returns an array of active OffreDeStage objects
+     */
+    public function findActiveOffres(): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.estActive = :active')
+            ->setParameter('active', true)
+            ->leftJoin('o.entreprise', 'e')
+            ->addSelect('e')
+            ->orderBy('o.dateCreation', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
     //    public function findOneBySomeField($value): ?OffreDeStage
     //    {

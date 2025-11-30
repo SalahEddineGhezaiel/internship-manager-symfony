@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Etudiant;
+use App\Entity\OffreDeStage;
 use App\Form\EtudiantRegistrationType;
+use App\Repository\OffreDeStageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,6 +58,31 @@ class EtudiantController extends AbstractController
 
         return $this->render('etudiant/register.html.twig', [
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/etudiant/offres', name: 'etudiant_offres_list')]
+    #[IsGranted('ROLE_ETUDIANT')]
+    public function listOffres(OffreDeStageRepository $offreRepository): Response
+    {
+        $offres = $offreRepository->findActiveOffres();
+
+        return $this->render('etudiant/offres/list.html.twig', [
+            'offres' => $offres,
+        ]);
+    }
+
+    #[Route('/etudiant/offre/{id}', name: 'etudiant_offre_show')]
+    #[IsGranted('ROLE_ETUDIANT')]
+    public function showOffre(OffreDeStage $offre): Response
+    {
+        // Check if the offer is active
+        if (!$offre->isEstActive()) {
+            throw $this->createNotFoundException('Cette offre n\'est pas disponible.');
+        }
+
+        return $this->render('etudiant/offres/show.html.twig', [
+            'offre' => $offre,
         ]);
     }
 }
