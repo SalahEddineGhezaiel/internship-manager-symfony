@@ -6,13 +6,25 @@ use App\Entity\Etudiant;
 use App\Form\EtudiantRegistrationType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class EtudiantController extends AbstractController
 {
+    #[Route('/etudiant/dashboard', name: 'etudiant_dashboard')]
+    #[IsGranted('ROLE_ETUDIANT')]
+    public function dashboard(): Response
+    {
+        $etudiant = $this->getUser();
+
+        return $this->render('etudiant/dashboard.html.twig', [
+            'etudiant' => $etudiant,
+        ]);
+    }
+
     #[Route('/etudiant/register', name: 'etudiant_register')]
     public function register(
         Request $request,

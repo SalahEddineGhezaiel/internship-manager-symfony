@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes offres de stage{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Mes offres de stage</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ path('entreprise_offre_new') }}" class="btn btn-primary">+ Nouvelle offre</a>
+            <a href="{{ path('entreprise_dashboard') }}" class="btn btn-secondary">Retour au tableau de bord</a>
+        </div>
+    </div>
+
+    {% if app.flashes('success') %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if offres|length > 0 %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Titre</th>
+                        <th>Localisation</th>
+                        <th>Date de début</th>
+                        <th>Date de fin</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offre in offres %}
+                        <tr>
+                            <td><strong>{{ offre.titre }}</strong></td>
+                            <td>{{ offre.localisation }}</td>
+                            <td>{{ offre.dateDebut|date('d/m/Y') }}</td>
+                            <td>{{ offre.dateFin|date('d/m/Y') }}</td>
+                            <td>
+                                {% if offre.estActive %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-info" title="Voir">
+                                    <i class="bi bi-eye"></i> Voir
+                                </a>
+                                <a href="{{ path('entreprise_offre_edit', { id: offre.id }) }}" class="btn btn-sm btn-warning" title="Modifier">
+                                    <i class="bi bi-pencil"></i> Modifier
+                                </a>
+                                <form method="POST" action="{{ path('entreprise_offre_toggle', { id: offre.id }) }}" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ offre.id) }}">
+                                    <button type="submit" class="btn btn-sm {% if offre.estActive %}btn-secondary{% else %}btn-success{% endif %}" title="{% if offre.estActive %}Désactiver{% else %}Activer{% endif %}">
+                                        {% if offre.estActive %}
+                                            <i class="bi bi-toggle-on"></i> Désactiver
+                                        {% else %}
+                                            <i class="bi bi-toggle-off"></i> Activer
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ path('entreprise_offre_delete', { id: offre.id }) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette offre?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ offre.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                        <i class="bi bi-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>Vous n'avez pas encore créé d'offre de stage.</p>
+            <a href="{{ path('entreprise_offre_new') }}" class="btn btn-primary">Créer votre première offre</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

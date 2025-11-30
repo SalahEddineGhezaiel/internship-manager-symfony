@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord Entreprise{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Bienvenue, {{ entreprise.nom }}!</h1>
+            <p class="text-muted">Tableau de bord entreprise</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ path('logout') }}" class="btn btn-danger">Déconnexion</a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Offres publiées</h5>
+                    <p class="card-text display-6">0</p>
+                    <small class="text-muted">Offres de stage actives</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Candidatures</h5>
+                    <p class="card-text display-6">0</p>
+                    <small class="text-muted">Candidatures reçues</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">En attente</h5>
+                    <p class="card-text display-6">0</p>
+                    <small class="text-muted">À traiter</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Acceptées</h5>
+                    <p class="card-text display-6">0</p>
+                    <small class="text-muted">Candidatures acceptées</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Actions rapides</h3>
+            <div class="btn-group" role="group">
+                <a href="#" class="btn btn-primary">Publier une offre</a>
+                <a href="#" class="btn btn-info">Mes offres</a>
+                <a href="#" class="btn btn-warning">Candidatures reçues</a>
+                <a href="#" class="btn btn-secondary">Mon profil</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
