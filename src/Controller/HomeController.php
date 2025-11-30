@@ -15,7 +15,7 @@ class HomeController extends AbstractController
     {
         $user = $this->getUser();
 
-        // Check user roles and redirect to appropriate dashboard
+        
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
             return $this->redirectToRoute('admin_dashboard');
         } elseif (in_array('ROLE_ENTREPRISE', $user->getRoles())) {
@@ -24,7 +24,7 @@ class HomeController extends AbstractController
             return $this->redirectToRoute('etudiant_dashboard');
         }
 
-        // Fallback to login if no role matches
+        
         return $this->redirectToRoute('login');
     }
 }

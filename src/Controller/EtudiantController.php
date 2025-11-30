@@ -38,19 +38,19 @@ class EtudiantController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hash the password
+            
             $plainPassword = $form->get('plainPassword')->getData();
             $hashedPassword = $passwordHasher->hashPassword($etudiant, $plainPassword);
             $etudiant->setMotDePasse($hashedPassword);
 
-            // Set default role
+            
             $etudiant->setRoles(['ROLE_ETUDIANT']);
 
-            // Persist to database
+            
             $entityManager->persist($etudiant);
             $entityManager->flush();
 
-            // Add success message and redirect to login
+            
             $this->addFlash('success', 'Inscription réussie! Veuillez vous connecter.');
 
             return $this->redirectToRoute('login');
@@ -76,7 +76,7 @@ class EtudiantController extends AbstractController
     #[IsGranted('ROLE_ETUDIANT')]
     public function showOffre(OffreDeStage $offre): Response
     {
-        // Check if the offer is active
+        
         if (!$offre->isEstActive()) {
             throw $this->createNotFoundException('Cette offre n\'est pas disponible.');
         }

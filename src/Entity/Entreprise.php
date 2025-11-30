@@ -48,9 +48,7 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $dateCreation = null;
 
-    /**
-     * @var Collection<int, OffreDeStage>
-     */
+    
     #[ORM\OneToMany(targetEntity: OffreDeStage::class, mappedBy: 'entreprise', orphanRemoval: true)]
     private Collection $offreDeStages;
 
@@ -149,9 +147,7 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, OffreDeStage>
-     */
+    
     public function getOffreDeStages(): Collection
     {
         return $this->offreDeStages;
@@ -178,23 +174,17 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
+    
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
+    
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_ENTREPRISE
+        
         if (empty($roles)) {
             $roles[] = 'ROLE_ENTREPRISE';
         }
@@ -209,20 +199,12 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
+    
     public function getPassword(): string
     {
         return $this->motDePasse;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
-    }
+    
+    
 }

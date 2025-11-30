@@ -42,9 +42,7 @@ class Etudiant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $dateCreation = null;
 
-    /**
-     * @var Collection<int, Candidature>
-     */
+    
     #[ORM\OneToMany(targetEntity: Candidature::class, mappedBy: 'etudiant', orphanRemoval: true)]
     private Collection $candidatures;
 
@@ -119,9 +117,7 @@ class Etudiant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Candidature>
-     */
+    
     public function getCandidatures(): Collection
     {
         return $this->candidatures;
@@ -148,23 +144,17 @@ class Etudiant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
+    
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
+    
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_ETUDIANT
+        
         if (empty($roles)) {
             $roles[] = 'ROLE_ETUDIANT';
         }
@@ -179,20 +169,11 @@ class Etudiant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
+    
     public function getPassword(): string
     {
         return $this->motDePasse;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
-    }
+    
 }

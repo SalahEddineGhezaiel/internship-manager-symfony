@@ -6,9 +6,7 @@ use App\Entity\OffreDeStage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<OffreDeStage>
- */
+
 class OffreDeStageRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,9 +14,7 @@ class OffreDeStageRepository extends ServiceEntityRepository
         parent::__construct($registry, OffreDeStage::class);
     }
 
-    /**
-     * @return OffreDeStage[] Returns an array of active OffreDeStage objects
-     */
+    
     public function findActiveOffres(): array
     {
         return $this->createQueryBuilder('o')
@@ -32,13 +28,5 @@ class OffreDeStageRepository extends ServiceEntityRepository
         ;
     }
 
-    //    public function findOneBySomeField($value): ?OffreDeStage
-    //    {
-    //        return $this->createQueryBuilder('o')
-    //            ->andWhere('o.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    
 }

@@ -49,9 +49,7 @@ class OffreDeStage
     #[ORM\JoinColumn(nullable: false)]
     private ?Entreprise $entreprise = null;
 
-    /**
-     * @var Collection<int, Candidature>
-     */
+    
     #[ORM\OneToMany(targetEntity: Candidature::class, mappedBy: 'offreDeStage', orphanRemoval: true)]
     private Collection $candidatures;
 
@@ -162,9 +160,7 @@ class OffreDeStage
         return $this;
     }
 
-    /**
-     * @return Collection<int, Candidature>
-     */
+    
     public function getCandidatures(): Collection
     {
         return $this->candidatures;

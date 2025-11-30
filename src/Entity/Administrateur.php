@@ -74,23 +74,17 @@ class Administrateur implements UserInterface, PasswordAuthenticatedUserInterfac
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
+    
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
+    
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_ADMIN
+    
         if (empty($roles)) {
             $roles[] = 'ROLE_ADMIN';
         }
@@ -105,20 +99,9 @@ class Administrateur implements UserInterface, PasswordAuthenticatedUserInterfac
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
+
     public function getPassword(): string
     {
         return $this->motDePasse;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
     }
 }

@@ -43,19 +43,19 @@ class EntrepriseController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hash the password
+            
             $plainPassword = $form->get('plainPassword')->getData();
             $hashedPassword = $passwordHasher->hashPassword($entreprise, $plainPassword);
             $entreprise->setMotDePasse($hashedPassword);
 
-            // Set default role
+            
             $entreprise->setRoles(['ROLE_ENTREPRISE']);
 
-            // Persist to database
+            
             $entityManager->persist($entreprise);
             $entityManager->flush();
 
-            // Add success message and redirect to login
+            
             $this->addFlash('success', 'Inscription réussie! Veuillez vous connecter.');
 
             return $this->redirectToRoute('login');
@@ -89,7 +89,7 @@ class EntrepriseController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Link offer to logged-in company
+            
             $offre->setEntreprise($this->getUser());
 
             $entityManager->persist($offre);
@@ -113,7 +113,7 @@ class EntrepriseController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager
     ): Response {
-        // Check if offer belongs to logged-in company
+        
         if ($offre->getEntreprise() !== $this->getUser()) {
             throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette offre.');
         }
@@ -143,12 +143,12 @@ class EntrepriseController extends AbstractController
         EntityManagerInterface $entityManager,
         Request $request
     ): Response {
-        // Check if offer belongs to logged-in company
+        
         if ($offre->getEntreprise() !== $this->getUser()) {
             throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette offre.');
         }
 
-        // Verify CSRF token
+        
         if ($this->isCsrfTokenValid('delete' . $offre->getId(), $request->request->get('_token'))) {
             $entityManager->remove($offre);
             $entityManager->flush();
@@ -166,12 +166,12 @@ class EntrepriseController extends AbstractController
         EntityManagerInterface $entityManager,
         Request $request
     ): Response {
-        // Check if offer belongs to logged-in company
+        
         if ($offre->getEntreprise() !== $this->getUser()) {
             throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette offre.');
         }
 
-        // Verify CSRF token
+        
         if ($this->isCsrfTokenValid('toggle' . $offre->getId(), $request->request->get('_token'))) {
             $offre->setEstActive(!$offre->isEstActive());
             $entityManager->flush();
