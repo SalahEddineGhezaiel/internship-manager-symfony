@@ -21,9 +21,13 @@ class EntrepriseController extends AbstractController
     public function dashboard(): Response
     {
         $entreprise = $this->getUser();
+        $offres = $entreprise->getOffreDeStages();
+        $offresActives = $offres->filter(fn($offre) => $offre->isEstActive())->count();
 
         return $this->render('entreprise/dashboard.html.twig', [
             'entreprise' => $entreprise,
+            'totalOffres' => $offres->count(),
+            'offresActives' => $offresActives,
         ]);
     }
 

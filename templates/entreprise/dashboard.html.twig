@@ -19,8 +19,8 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Offres publiées</h5>
-                    <p class="card-text display-6">0</p>
-                    <small class="text-muted">Offres de stage actives</small>
+                    <p class="card-text display-6">{{ totalOffres }}</p>
+                    <small class="text-muted">{{ offresActives }} active(s)</small>
                 </div>
             </div>
         </div>
@@ -57,8 +57,8 @@
         <div class="col-md-12">
             <h3>Actions rapides</h3>
             <div class="btn-group" role="group">
-                <a href="#" class="btn btn-primary">Publier une offre</a>
-                <a href="#" class="btn btn-info">Mes offres</a>
+                <a href="{{ path('entreprise_offre_new') }}" class="btn btn-primary">Publier une offre</a>
+                <a href="{{ path('entreprise_offres_list') }}" class="btn btn-info">Mes offres</a>
                 <a href="#" class="btn btn-warning">Candidatures reçues</a>
                 <a href="#" class="btn btn-secondary">Mon profil</a>
             </div>
