@@ -104,4 +104,10 @@ class Administrateur implements UserInterface, PasswordAuthenticatedUserInterfac
     {
         return $this->motDePasse;
     }
+
+    
+    public function eraseCredentials(): void
+    {
+        
+    }
 }

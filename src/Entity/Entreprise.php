@@ -207,4 +207,8 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
 
     
     
+    public function eraseCredentials(): void
+    {
+        
+    }
 }

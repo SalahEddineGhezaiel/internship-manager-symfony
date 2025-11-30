@@ -176,4 +176,8 @@ class Etudiant implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     
+    public function eraseCredentials(): void
+    {
+        
+    }
 }
