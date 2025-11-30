@@ -41,7 +41,7 @@ security:
     access_control:
         - { path: ^/$, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/etudiant/register, roles: PUBLIC_ACCESS }
-        - { path: ^/entreprise/register, roles: PUBLIC_ACCESS }
+        - { path: ^/entreprise/register, roles: ROLE_ADMIN }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/entreprise, roles: ROLE_ENTREPRISE }
