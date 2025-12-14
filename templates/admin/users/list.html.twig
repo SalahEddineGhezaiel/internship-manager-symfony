@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gérer les utilisateurs{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Gérer les utilisateurs</h2>
+        <div>
+            <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">Tableau de bord</a>
+            <a href="{{ path('entreprise_register') }}" class="btn btn-info">Créer une entreprise</a>
+        </div>
+    </div>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">Étudiants</div>
+                <div class="card-body">
+                    {% if etudiants is empty %}
+                        <div class="alert alert-info">Aucun étudiant</div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Email</th>
+                                        <th>Date de création</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for e in etudiants %}
+                                        <tr>
+                                            <td>{{ e.prenom }} {{ e.nom }}</td>
+                                            <td>{{ e.email }}</td>
+                                            <td>{{ e.dateCreation|date('d/m/Y H:i') }}</td>
+                                            <td>
+                                                <form method="post" action="{{ path('admin_user_etudiant_delete', { id: e.id }) }}" style="display:inline;" onsubmit="return confirm('Supprimer cet étudiant ?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_etudiant' ~ e.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-danger" {% if e.candidatures|length > 0 %}disabled title="Impossible: candidatures existantes"{% endif %}>Supprimer</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">Entreprises</div>
+                <div class="card-body">
+                    {% if entreprises is empty %}
+                        <div class="alert alert-info">Aucune entreprise</div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Email</th>
+                                        <th>Date de création</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in entreprises %}
+                                        <tr>
+                                            <td>{{ c.nom }}</td>
+                                            <td>{{ c.email }}</td>
+                                            <td>{{ c.dateCreation|date('d/m/Y H:i') }}</td>
+                                            <td>
+                                                <form method="post" action="{{ path('admin_user_entreprise_delete', { id: c.id }) }}" style="display:inline;" onsubmit="return confirm('Supprimer cette entreprise ?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_entreprise' ~ c.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-danger" {% if c.offreDeStages|length > 0 %}disabled title="Impossible: offres existantes"{% endif %}>Supprimer</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

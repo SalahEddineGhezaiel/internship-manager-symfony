@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gérer les offres{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Gérer les offres</h2>
+        <div>
+            <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">Tableau de bord</a>
+        </div>
+    </div>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    {% if offres is empty %}
+        <div class="alert alert-info">Aucune offre.</div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Titre</th>
+                        <th>Entreprise</th>
+                        <th>Localisation</th>
+                        <th>Début</th>
+                        <th>Fin</th>
+                        <th>Statut</th>
+                        <th>Candidatures</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in offres %}
+                        <tr>
+                            <td>{{ o.titre }}</td>
+                            <td>{{ o.entreprise.nom }}</td>
+                            <td>{{ o.localisation }}</td>
+                            <td>{{ o.dateDebut|date('d/m/Y') }}</td>
+                            <td>{{ o.dateFin|date('d/m/Y') }}</td>
+                            <td>
+                                {% if o.estActive %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-primary">{{ o.candidatures|length }}</span></td>
+                            <td>
+                                <form method="post" action="{{ path('admin_offre_toggle', { id: o.id }) }}" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('admin_toggle' ~ o.id) }}">
+                                    <button type="submit" class="btn btn-sm {% if o.estActive %}btn-secondary{% else %}btn-success{% endif %}">
+                                        {% if o.estActive %}Désactiver{% else %}Activer{% endif %}
+                                    </button>
+                                </form>
+                                <form method="post" action="{{ path('admin_offre_delete', { id: o.id }) }}" style="display:inline;" onsubmit="return confirm('Supprimer cette offre ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('admin_delete' ~ o.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

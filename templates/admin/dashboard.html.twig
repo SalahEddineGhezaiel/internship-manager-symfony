@@ -19,7 +19,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Utilisateurs</h5>
-                    <p class="card-text display-6">0</p>
+                    <p class="card-text display-6">{{ utilisateurs|default(0) }}</p>
                     <small class="text-muted">Utilisateurs totaux</small>
                 </div>
             </div>
@@ -28,7 +28,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Étudiants</h5>
-                    <p class="card-text display-6">0</p>
+                    <p class="card-text display-6">{{ etudiants|default(0) }}</p>
                     <small class="text-muted">Comptes étudiants</small>
                 </div>
             </div>
@@ -37,7 +37,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Entreprises</h5>
-                    <p class="card-text display-6">0</p>
+                    <p class="card-text display-6">{{ entreprises|default(0) }}</p>
                     <small class="text-muted">Comptes entreprises</small>
                 </div>
             </div>
@@ -46,7 +46,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Offres</h5>
-                    <p class="card-text display-6">0</p>
+                    <p class="card-text display-6">{{ offres|default(0) }}</p>
                     <small class="text-muted">Offres de stage</small>
                 </div>
             </div>
@@ -57,9 +57,9 @@
         <div class="col-md-12">
             <h3>Actions rapides</h3>
             <div class="btn-group" role="group">
-                <a href="#" class="btn btn-primary">Gérer les utilisateurs</a>
-                <a href="#" class="btn btn-info">Créer une entreprise</a>
-                <a href="#" class="btn btn-warning">Gérer les offres</a>
+                <a href="{{ path('admin_users') }}" class="btn btn-primary">Gérer les utilisateurs</a>
+                <a href="{{ path('entreprise_register') }}" class="btn btn-info">Créer une entreprise</a>
+                <a href="{{ path('admin_offres') }}" class="btn btn-warning">Gérer les offres</a>
                 <a href="#" class="btn btn-secondary">Voir les statistiques</a>
             </div>
         </div>
