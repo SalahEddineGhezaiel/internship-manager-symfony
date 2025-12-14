@@ -22,12 +22,22 @@ class EtudiantController extends AbstractController
 {
     #[Route('/etudiant/dashboard', name: 'etudiant_dashboard')]
     #[IsGranted('ROLE_ETUDIANT')]
-    public function dashboard(): Response
+    public function dashboard(EntityManagerInterface $entityManager): Response
     {
         $etudiant = $this->getUser();
 
+        $repo = $entityManager->getRepository(Candidature::class);
+        $total = $repo->count(['etudiant' => $etudiant]);
+        $enAttente = $repo->count(['etudiant' => $etudiant, 'statut' => 'EN_ATTENTE']);
+        $acceptees = $repo->count(['etudiant' => $etudiant, 'statut' => 'ACCEPTEE']);
+        $refusees = $repo->count(['etudiant' => $etudiant, 'statut' => 'REFUSEE']);
+
         return $this->render('etudiant/dashboard.html.twig', [
             'etudiant' => $etudiant,
+            'totalCandidatures' => $total,
+            'enAttente' => $enAttente,
+            'acceptees' => $acceptees,
+            'refusees' => $refusees,
         ]);
     }
 
@@ -67,26 +77,36 @@ class EtudiantController extends AbstractController
 
     #[Route('/etudiant/offres', name: 'etudiant_offres_list')]
     #[IsGranted('ROLE_ETUDIANT')]
-    public function listOffres(OffreDeStageRepository $offreRepository): Response
+    public function listOffres(OffreDeStageRepository $offreRepository, EntityManagerInterface $entityManager): Response
     {
         $offres = $offreRepository->findActiveOffres();
+        $etudiant = $this->getUser();
+        $applied = $entityManager->getRepository(Candidature::class)->findBy(['etudiant' => $etudiant]);
+        $appliedOffreIds = array_map(fn($c) => $c->getOffreDeStage()->getId(), $applied);
 
         return $this->render('etudiant/offres/list.html.twig', [
             'offres' => $offres,
+            'appliedOffreIds' => $appliedOffreIds,
         ]);
     }
 
     #[Route('/etudiant/offre/{id}', name: 'etudiant_offre_show')]
     #[IsGranted('ROLE_ETUDIANT')]
-    public function showOffre(OffreDeStage $offre): Response
+    public function showOffre(OffreDeStage $offre, EntityManagerInterface $entityManager): Response
     {
-        
         if (!$offre->isEstActive()) {
             throw $this->createNotFoundException('Cette offre n\'est pas disponible.');
         }
 
+        $etudiant = $this->getUser();
+        $hasApplied = (bool) $entityManager->getRepository(Candidature::class)->findOneBy([
+            'etudiant' => $etudiant,
+            'offreDeStage' => $offre,
+        ]);
+
         return $this->render('etudiant/offres/show.html.twig', [
             'offre' => $offre,
+            'hasApplied' => $hasApplied,
         ]);
     }
 

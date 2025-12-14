@@ -19,7 +19,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Candidatures</h5>
-                    <p class="card-text display-6">0</p>
+                    <p class="card-text display-6">{{ totalCandidatures|default(0) }}</p>
                     <small class="text-muted">Candidatures soumises</small>
                 </div>
             </div>
@@ -28,7 +28,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">En attente</h5>
-                    <p class="card-text display-6">0</p>
+                    <p class="card-text display-6">{{ enAttente|default(0) }}</p>
                     <small class="text-muted">Réponses en attente</small>
                 </div>
             </div>
@@ -37,7 +37,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Acceptées</h5>
-                    <p class="card-text display-6">0</p>
+                    <p class="card-text display-6">{{ acceptees|default(0) }}</p>
                     <small class="text-muted">Candidatures acceptées</small>
                 </div>
             </div>
@@ -46,7 +46,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Refusées</h5>
-                    <p class="card-text display-6">0</p>
+                    <p class="card-text display-6">{{ refusees|default(0) }}</p>
                     <small class="text-muted">Candidatures refusées</small>
                 </div>
             </div>

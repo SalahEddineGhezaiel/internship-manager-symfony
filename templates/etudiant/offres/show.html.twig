@@ -67,9 +67,15 @@
                         <a href="{{ path('etudiant_offres_list') }}" class="btn btn-secondary">
                             <i class="fas fa-list"></i> Voir toutes les offres
                         </a>
-                        <a href="{{ path('etudiant_offre_apply', {id: offre.id}) }}" class="btn btn-primary">
-                            <i class="fas fa-paper-plane"></i> Postuler
-                        </a>
+                        {% if hasApplied is defined and hasApplied %}
+                            <button class="btn btn-outline-success" disabled>
+                                <i class="fas fa-check"></i> Vous avez déjà postulé
+                            </button>
+                        {% else %}
+                            <a href="{{ path('etudiant_offre_apply', {id: offre.id}) }}" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Postuler
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
