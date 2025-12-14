@@ -195,6 +195,17 @@ class EtudiantController extends AbstractController
             return $this->redirectToRoute('etudiant_candidatures');
         }
 
+        // Delete uploaded CV file if present
+        $relativePath = $candidature->getCvFichier();
+        if ($relativePath) {
+            $absolutePath = rtrim($this->getParameter('kernel.project_dir'), DIRECTORY_SEPARATOR)
+                . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR
+                . ltrim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath), DIRECTORY_SEPARATOR);
+            if (is_file($absolutePath)) {
+                @unlink($absolutePath);
+            }
+        }
+
         $entityManager->remove($candidature);
         $entityManager->flush();
         $this->addFlash('success', 'Votre candidature a été annulée.');
