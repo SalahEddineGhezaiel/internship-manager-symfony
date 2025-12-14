@@ -12,6 +12,7 @@ use Doctrine\ORM\NoResultException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\OffreDeStageRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\NotificationMailer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,7 +47,8 @@ class EtudiantController extends AbstractController
     public function register(
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        NotificationMailer $notifier
     ): Response {
         $etudiant = new Etudiant();
         $form = $this->createForm(EtudiantRegistrationType::class, $etudiant);
@@ -236,7 +238,8 @@ class EtudiantController extends AbstractController
     public function apply(
         OffreDeStage $offre,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        NotificationMailer $notifier
     ): Response {
         // L'offre doit être active
         if (!$offre->isEstActive()) {
@@ -283,6 +286,9 @@ class EtudiantController extends AbstractController
 
             $entityManager->persist($candidature);
             $entityManager->flush();
+
+            // Notify company by email (best effort in dev)
+            $notifier->sendApplicationReceived($offre->getEntreprise(), $offre, $candidature);
 
             $this->addFlash('success', 'Votre candidature a été soumise avec succès.');
             return $this->redirectToRoute('etudiant_offre_show', ['id' => $offre->getId()]);

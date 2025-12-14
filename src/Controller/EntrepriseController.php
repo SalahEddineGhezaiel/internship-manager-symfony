@@ -9,6 +9,7 @@ use App\Form\EntrepriseRegistrationType;
 use App\Form\OffreDeStageType;
 use App\Entity\Candidature;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\NotificationMailer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -323,7 +324,7 @@ class EntrepriseController extends AbstractController
 
     #[Route('/entreprise/candidature/{id}/statut', name: 'entreprise_candidature_update_statut', methods: ['POST'])]
     #[IsGranted('ROLE_ENTREPRISE')]
-    public function updateCandidatureStatut(Candidature $candidature, Request $request, EntityManagerInterface $entityManager): Response
+    public function updateCandidatureStatut(Candidature $candidature, Request $request, EntityManagerInterface $entityManager, NotificationMailer $notifier): Response
     {
         if ($candidature->getOffreDeStage()->getEntreprise() !== $this->getUser()) {
             throw $this->createAccessDeniedException("Vous n'avez pas accès à cette candidature.");
@@ -349,8 +350,11 @@ class EntrepriseController extends AbstractController
         }
 
         $entityManager->flush();
-        $this->addFlash('success', 'Statut de la candidature mis à jour.');
 
+        // Notify student by email (best effort in dev)
+        $notifier->sendCandidatureStatus($candidature->getEtudiant(), $candidature);
+
+        $this->addFlash('success', 'Statut de la candidature mis à jour.');
         return $this->redirectToRoute('entreprise_candidature_show', ['id' => $candidature->getId()]);
     }
 }

@@ -43,9 +43,9 @@
             <form method="post" action="{{ path('entreprise_candidature_update_statut', { id: candidature.id }) }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('statut' ~ candidature.id) }}">
                 <div class="btn-group" role="group" aria-label="Changer le statut">
-                    <button name="statut" value="EN_ATTENTE" class="btn btn-secondary" type="submit">En attente</button>
-                    <button name="statut" value="ACCEPTEE" class="btn btn-success" type="submit">Accepter</button>
-                    <button name="statut" value="REFUSEE" class="btn btn-danger" type="submit">Refuser</button>
+                    <button name="statut" value="EN_ATTENTE" class="btn btn-secondary" type="submit" onclick="return confirm('Confirmer le statut En attente ?');">En attente</button>
+                    <button name="statut" value="ACCEPTEE" class="btn btn-success" type="submit" onclick="return confirm('Confirmer l\'acceptation de cette candidature ?');">Accepter</button>
+                    <button name="statut" value="REFUSEE" class="btn btn-danger" type="submit" onclick="return confirm('Confirmer le refus de cette candidature ?');">Refuser</button>
                 </div>
             </form>
         </div>
