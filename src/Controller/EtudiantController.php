@@ -5,6 +5,10 @@ namespace App\Controller;
 use App\Entity\Etudiant;
 use App\Entity\OffreDeStage;
 use App\Form\EtudiantRegistrationType;
+use App\Form\CandidatureType;
+use App\Entity\Candidature;
+use Doctrine\ORM\NoResultException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\OffreDeStageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -83,6 +87,69 @@ class EtudiantController extends AbstractController
 
         return $this->render('etudiant/offres/show.html.twig', [
             'offre' => $offre,
+        ]);
+    }
+
+    #[Route('/etudiant/offre/{id}/postuler', name: 'etudiant_offre_apply')]
+    #[IsGranted('ROLE_ETUDIANT')]
+    public function apply(
+        OffreDeStage $offre,
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        // L'offre doit être active
+        if (!$offre->isEstActive()) {
+            throw $this->createNotFoundException("Cette offre n'est pas disponible.");
+        }
+
+        $etudiant = $this->getUser();
+
+        // Empêcher la candidature en double pour la même offre
+        $existing = $entityManager->getRepository(Candidature::class)->findOneBy([
+            'etudiant' => $etudiant,
+            'offreDeStage' => $offre,
+        ]);
+        if ($existing) {
+            $this->addFlash('info', 'Vous avez déjà postulé à cette offre.');
+            return $this->redirectToRoute('etudiant_offre_show', ['id' => $offre->getId()]);
+        }
+
+        $candidature = new Candidature();
+        $form = $this->createForm(CandidatureType::class, $candidature);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile $cvFile */
+            $cvFile = $form->get('cvFichier')->getData();
+
+            // Déterminer le répertoire de stockage (public/uploads/cv)
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/cv';
+            if (!is_dir($uploadDir)) {
+                @mkdir($uploadDir, 0775, true);
+            }
+
+            $safeBaseName = pathinfo($cvFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeBaseName = preg_replace('/[^A-Za-z0-9_-]/', '_', $safeBaseName) ?: 'cv';
+            $newFilename = $safeBaseName . '_' . bin2hex(random_bytes(6)) . '.' . $cvFile->guessExtension();
+
+            $cvFile->move($uploadDir, $newFilename);
+
+            // Renseigner l'entité
+            $candidature->setEtudiant($etudiant);
+            $candidature->setOffreDeStage($offre);
+            $candidature->setCvFichier('uploads/cv/' . $newFilename);
+            // lettreMotivation déjà mappée par le formulaire
+
+            $entityManager->persist($candidature);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Votre candidature a été soumise avec succès.');
+            return $this->redirectToRoute('etudiant_offre_show', ['id' => $offre->getId()]);
+        }
+
+        return $this->render('etudiant/candidatures/apply.html.twig', [
+            'offre' => $offre,
+            'form' => $form,
         ]);
     }
 }

@@ -63,9 +63,12 @@
                             <small>Offre publiée le {{ offre.dateCreation|date('d/m/Y à H:i') }}</small>
                         </div>
                     </div>
-                    <div class="card-footer text-center">
-                        <a href="{{ path('etudiant_offres_list') }}" class="btn btn-primary">
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="{{ path('etudiant_offres_list') }}" class="btn btn-secondary">
                             <i class="fas fa-list"></i> Voir toutes les offres
+                        </a>
+                        <a href="{{ path('etudiant_offre_apply', {id: offre.id}) }}" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Postuler
                         </a>
                     </div>
                 </div>

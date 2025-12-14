@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Postuler - {{ offre.titre }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Postuler à l'offre</h2>
+                <a href="{{ path('etudiant_offre_show', {id: offre.id}) }}" class="btn btn-secondary">Retour</a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <strong>{{ offre.titre }}</strong> — {{ offre.entreprise.nom }}
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' } }) }}
+                        <div class="mb-3">
+                            {{ form_label(form.lettreMotivation) }}
+                            {{ form_widget(form.lettreMotivation, { 'attr': { 'class': 'form-control' } }) }}
+                            {% if form.lettreMotivation.vars.errors|length > 0 %}
+                                <div class="alert alert-danger mt-2">
+                                    {% for error in form.lettreMotivation.vars.errors %}
+                                        <div>{{ error.message }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.cvFichier) }}
+                            {{ form_widget(form.cvFichier, { 'attr': { 'class': 'form-control' } }) }}
+                            {% if form.cvFichier.vars.errors|length > 0 %}
+                                <div class="alert alert-danger mt-2">
+                                    {% for error in form.cvFichier.vars.errors %}
+                                        <div>{{ error.message }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">Soumettre la candidature</button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
