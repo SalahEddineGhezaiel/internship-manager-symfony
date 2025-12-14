@@ -6,6 +6,7 @@ use App\Entity\Entreprise;
 use App\Entity\OffreDeStage;
 use App\Form\EntrepriseRegistrationType;
 use App\Form\OffreDeStageType;
+use App\Entity\Candidature;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -181,5 +182,90 @@ class EntrepriseController extends AbstractController
         }
 
         return $this->redirectToRoute('entreprise_offres_list');
+    }
+
+    #[Route('/entreprise/candidatures', name: 'entreprise_candidatures_list')]
+    #[IsGranted('ROLE_ENTREPRISE')]
+    public function listCandidatures(EntityManagerInterface $entityManager): Response
+    {
+        $entreprise = $this->getUser();
+        // All candidatures for offers of this company
+        $qb = $entityManager->createQueryBuilder();
+        $candidatures = $qb->select('c', 'o')
+            ->from(Candidature::class, 'c')
+            ->join('c.offreDeStage', 'o')
+            ->where('o.entreprise = :entreprise')
+            ->setParameter('entreprise', $entreprise)
+            ->orderBy('c.dateSoumission', 'DESC')
+            ->getQuery()->getResult();
+
+        return $this->render('entreprise/candidatures/list.html.twig', [
+            'candidatures' => $candidatures,
+        ]);
+    }
+
+    #[Route('/entreprise/offre/{id}/candidatures', name: 'entreprise_candidatures_by_offre')]
+    #[IsGranted('ROLE_ENTREPRISE')]
+    public function listCandidaturesByOffre(OffreDeStage $offre, EntityManagerInterface $entityManager): Response
+    {
+        if ($offre->getEntreprise() !== $this->getUser()) {
+            throw $this->createAccessDeniedException("Vous n'avez pas accès à cette offre.");
+        }
+
+        $candidatures = $entityManager->getRepository(Candidature::class)->findBy(
+            ['offreDeStage' => $offre],
+            ['dateSoumission' => 'DESC']
+        );
+
+        return $this->render('entreprise/candidatures/list.html.twig', [
+            'candidatures' => $candidatures,
+            'offre' => $offre,
+        ]);
+    }
+
+    #[Route('/entreprise/candidature/{id}', name: 'entreprise_candidature_show')]
+    #[IsGranted('ROLE_ENTREPRISE')]
+    public function showCandidature(Candidature $candidature): Response
+    {
+        if ($candidature->getOffreDeStage()->getEntreprise() !== $this->getUser()) {
+            throw $this->createAccessDeniedException("Vous n'avez pas accès à cette candidature.");
+        }
+
+        return $this->render('entreprise/candidatures/show.html.twig', [
+            'candidature' => $candidature,
+        ]);
+    }
+
+    #[Route('/entreprise/candidature/{id}/statut', name: 'entreprise_candidature_update_statut', methods: ['POST'])]
+    #[IsGranted('ROLE_ENTREPRISE')]
+    public function updateCandidatureStatut(Candidature $candidature, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        if ($candidature->getOffreDeStage()->getEntreprise() !== $this->getUser()) {
+            throw $this->createAccessDeniedException("Vous n'avez pas accès à cette candidature.");
+        }
+
+        if (!$this->isCsrfTokenValid('statut'.$candidature->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('entreprise_candidature_show', ['id' => $candidature->getId()]);
+        }
+
+        $newStatut = $request->request->get('statut');
+        $allowed = ['EN_ATTENTE', 'ACCEPTEE', 'REFUSEE'];
+        if (!in_array($newStatut, $allowed, true)) {
+            $this->addFlash('danger', 'Statut invalide.');
+            return $this->redirectToRoute('entreprise_candidature_show', ['id' => $candidature->getId()]);
+        }
+
+        $candidature->setStatut($newStatut);
+        if ($newStatut !== 'EN_ATTENTE') {
+            $candidature->setDateReponse(new \DateTimeImmutable());
+        } else {
+            $candidature->setDateReponse(null);
+        }
+
+        $entityManager->flush();
+        $this->addFlash('success', 'Statut de la candidature mis à jour.');
+
+        return $this->redirectToRoute('entreprise_candidature_show', ['id' => $candidature->getId()]);
     }
 }

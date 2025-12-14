@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Candidature — {{ candidature.offreDeStage.titre }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Candidature</h2>
+        <div>
+            <a href="{{ path('entreprise_candidatures_list') }}" class="btn btn-secondary">Toutes les candidatures</a>
+            <a href="{{ path('entreprise_candidatures_by_offre', { id: candidature.offreDeStage.id }) }}" class="btn btn-secondary">Par offre</a>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong>{{ candidature.offreDeStage.titre }}</strong>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Étudiant</h5>
+                    <p class="mb-1"><strong>Nom:</strong> {{ candidature.etudiant.prenom }} {{ candidature.etudiant.nom }}</p>
+                    <p class="mb-1"><strong>Email:</strong> {{ candidature.etudiant.email }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Informations</h5>
+                    <p class="mb-1"><strong>Soumise le:</strong> {{ candidature.dateSoumission|date('d/m/Y H:i') }}</p>
+                    <p class="mb-1"><strong>Statut:</strong> 
+                        {% set badge = candidature.statut == 'ACCEPTEE' ? 'success' : (candidature.statut == 'REFUSEE' ? 'danger' : 'secondary') %}
+                        <span class="badge bg-{{ badge }}">{{ candidature.statut }}</span>
+                    </p>
+                    {% if candidature.dateReponse %}
+                        <p class="mb-1"><strong>Réponse le:</strong> {{ candidature.dateReponse|date('d/m/Y H:i') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <hr>
+            <h5>Lettre de motivation</h5>
+            <div class="alert alert-light">{{ candidature.lettreMotivation|nl2br }}</div>
+            <hr>
+            <a href="/{{ candidature.cvFichier }}" target="_blank" class="btn btn-outline-primary">Télécharger le CV</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Mettre à jour le statut</div>
+        <div class="card-body">
+            <form method="post" action="{{ path('entreprise_candidature_update_statut', { id: candidature.id }) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('statut' ~ candidature.id) }}">
+                <div class="btn-group" role="group" aria-label="Changer le statut">
+                    <button name="statut" value="EN_ATTENTE" class="btn btn-secondary" type="submit">En attente</button>
+                    <button name="statut" value="ACCEPTEE" class="btn btn-success" type="submit">Accepter</button>
+                    <button name="statut" value="REFUSEE" class="btn btn-danger" type="submit">Refuser</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
