@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ offre.titre }} — Visiteur{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Détails de l'offre</h2>
+        <div>
+            <a href="{{ path('visiteur_offres_list') }}" class="btn btn-secondary">Retour aux offres</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><strong>{{ offre.titre }}</strong></div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Entreprise:</strong> {{ offre.entreprise.nom }}</p>
+                    {% if offre.entreprise.secteurActivite %}
+                        <p><strong>Secteur:</strong> {{ offre.entreprise.secteurActivite }}</p>
+                    {% endif %}
+                    {% if offre.entreprise.siteWeb %}
+                        <p><strong>Site web:</strong> <a href="{{ offre.entreprise.siteWeb }}" target="_blank">{{ offre.entreprise.siteWeb }}</a></p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Localisation:</strong> {{ offre.localisation }}</p>
+                    <p><strong>Début:</strong> {{ offre.dateDebut|date('d/m/Y') }}</p>
+                    <p><strong>Fin:</strong> {{ offre.dateFin|date('d/m/Y') }}</p>
+                </div>
+            </div>
+            <hr>
+            <h5>Description</h5>
+            <div class="alert alert-light">{{ offre.description|nl2br }}</div>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <a href="{{ path('visiteur_offres_list') }}" class="btn btn-secondary">Voir toutes les offres</a>
+            <a href="{{ path('login') }}" class="btn btn-primary">Se connecter pour postuler</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

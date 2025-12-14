@@ -10,12 +10,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'home')]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function index(): Response
     {
         $user = $this->getUser();
 
-        
+        if (!$user) {
+            return $this->redirectToRoute('visiteur_home');
+        }
+
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
             return $this->redirectToRoute('admin_dashboard');
         } elseif (in_array('ROLE_ENTREPRISE', $user->getRoles())) {
