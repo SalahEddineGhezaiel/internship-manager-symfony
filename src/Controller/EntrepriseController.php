@@ -87,9 +87,9 @@ class EntrepriseController extends AbstractController
             $entityManager->flush();
 
             
-            $this->addFlash('success', 'Inscription réussie! Veuillez vous connecter.');
+            $this->addFlash('success', 'Entreprise créée avec succès.');
 
-            return $this->redirectToRoute('login');
+            return $this->redirectToRoute('admin_users');
         }
 
         return $this->render('entreprise/register.html.twig', [
