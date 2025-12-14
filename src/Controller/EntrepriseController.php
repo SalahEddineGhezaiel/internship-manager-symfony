@@ -19,16 +19,45 @@ class EntrepriseController extends AbstractController
 {
     #[Route('/entreprise/dashboard', name: 'entreprise_dashboard')]
     #[IsGranted('ROLE_ENTREPRISE')]
-    public function dashboard(): Response
+    public function dashboard(EntityManagerInterface $entityManager): Response
     {
         $entreprise = $this->getUser();
         $offres = $entreprise->getOffreDeStages();
         $offresActives = $offres->filter(fn($offre) => $offre->isEstActive())->count();
 
+        // Compute candidature stats for all offers owned by this company
+        $qb = $entityManager->createQueryBuilder();
+        $totalCandidatures = (int) $qb->select('COUNT(c.id)')
+            ->from('App\\Entity\\Candidature', 'c')
+            ->join('c.offreDeStage', 'o')
+            ->where('o.entreprise = :entreprise')
+            ->setParameter('entreprise', $entreprise)
+            ->getQuery()->getSingleScalarResult();
+
+        $countByStatut = function (string $statut) use ($entityManager, $entreprise) {
+            $qb2 = $entityManager->createQueryBuilder();
+            return (int) $qb2->select('COUNT(c2.id)')
+                ->from('App\\Entity\\Candidature', 'c2')
+                ->join('c2.offreDeStage', 'o2')
+                ->where('o2.entreprise = :entreprise')
+                ->andWhere('c2.statut = :statut')
+                ->setParameter('entreprise', $entreprise)
+                ->setParameter('statut', $statut)
+                ->getQuery()->getSingleScalarResult();
+        };
+
+        $enAttente = $countByStatut('EN_ATTENTE');
+        $acceptees = $countByStatut('ACCEPTEE');
+        $refusees = $countByStatut('REFUSEE');
+
         return $this->render('entreprise/dashboard.html.twig', [
             'entreprise' => $entreprise,
             'totalOffres' => $offres->count(),
             'offresActives' => $offresActives,
+            'totalCandidatures' => $totalCandidatures,
+            'enAttente' => $enAttente,
+            'acceptees' => $acceptees,
+            'refusees' => $refusees,
         ]);
     }
 
