@@ -7,6 +7,7 @@ use App\Entity\OffreDeStage;
 use App\Form\EtudiantRegistrationType;
 use App\Form\CandidatureType;
 use App\Entity\Candidature;
+use App\Form\ChangePasswordType;
 use Doctrine\ORM\NoResultException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\OffreDeStageRepository;
@@ -108,6 +109,115 @@ class EtudiantController extends AbstractController
             'offre' => $offre,
             'hasApplied' => $hasApplied,
         ]);
+    }
+
+    #[Route('/etudiant/candidatures', name: 'etudiant_candidatures')]
+    #[IsGranted('ROLE_ETUDIANT')]
+    public function mesCandidatures(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $etudiant = $this->getUser();
+        $repo = $entityManager->getRepository(Candidature::class);
+
+        $allowed = [null, 'EN_ATTENTE', 'ACCEPTEE', 'REFUSEE'];
+        $statut = $request->query->get('statut');
+        if ($statut === '') { $statut = null; }
+        if (!in_array($statut, $allowed, true)) { $statut = null; }
+
+        $criteria = ['etudiant' => $etudiant];
+        if ($statut) {
+            $criteria['statut'] = $statut;
+        }
+        $candidatures = $repo->findBy($criteria, ['dateSoumission' => 'DESC']);
+
+        $total = $repo->count(['etudiant' => $etudiant]);
+        $enAttente = $repo->count(['etudiant' => $etudiant, 'statut' => 'EN_ATTENTE']);
+        $acceptees = $repo->count(['etudiant' => $etudiant, 'statut' => 'ACCEPTEE']);
+        $refusees = $repo->count(['etudiant' => $etudiant, 'statut' => 'REFUSEE']);
+
+        return $this->render('etudiant/candidatures/list.html.twig', [
+            'candidatures' => $candidatures,
+            'filterStatut' => $statut,
+            'total' => $total,
+            'enAttente' => $enAttente,
+            'acceptees' => $acceptees,
+            'refusees' => $refusees,
+        ]);
+    }
+
+    #[Route('/etudiant/profil', name: 'etudiant_profil')]
+    #[IsGranted('ROLE_ETUDIANT')]
+    public function profil(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        $etudiant = $this->getUser();
+
+        $passwordForm = $this->createForm(ChangePasswordType::class);
+        $passwordForm->handleRequest($request);
+
+        if ($passwordForm->isSubmitted() && $passwordForm->isValid()) {
+            $current = $passwordForm->get('currentPassword')->getData();
+            if (!$passwordHasher->isPasswordValid($etudiant, $current)) {
+                $this->addFlash('danger', 'Mot de passe actuel incorrect');
+                return $this->redirectToRoute('etudiant_profil');
+            }
+
+            $new = $passwordForm->get('newPassword')->getData();
+            $etudiant->setMotDePasse($passwordHasher->hashPassword($etudiant, $new));
+            $entityManager->flush();
+            $this->addFlash('success', 'Mot de passe mis à jour');
+            return $this->redirectToRoute('etudiant_profil');
+        }
+
+        return $this->render('etudiant/profil/show.html.twig', [
+            'etudiant' => $etudiant,
+            'passwordForm' => $passwordForm,
+        ]);
+    }
+
+    #[Route('/etudiant/candidature/{id}/annuler', name: 'etudiant_candidature_annuler', methods: ['POST'])]
+    #[IsGranted('ROLE_ETUDIANT')]
+    public function annulerCandidature(Candidature $candidature, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $etudiant = $this->getUser();
+        if ($candidature->getEtudiant() !== $etudiant) {
+            throw $this->createAccessDeniedException("Vous n'avez pas accès à cette candidature.");
+        }
+
+        if (!$this->isCsrfTokenValid('annuler'.$candidature->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('etudiant_candidatures');
+        }
+
+        if ($candidature->getStatut() !== 'EN_ATTENTE') {
+            $this->addFlash('danger', 'Vous ne pouvez annuler qu\'une candidature en attente.');
+            return $this->redirectToRoute('etudiant_candidatures');
+        }
+
+        $entityManager->remove($candidature);
+        $entityManager->flush();
+        $this->addFlash('success', 'Votre candidature a été annulée.');
+
+        return $this->redirectToRoute('etudiant_candidatures');
+    }
+
+    #[Route('/etudiant/profil/delete', name: 'etudiant_delete_account', methods: ['POST'])]
+    #[IsGranted('ROLE_ETUDIANT')]
+    public function deleteAccount(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $etudiant = $this->getUser();
+        if (!$this->isCsrfTokenValid('delete_account'.$etudiant->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('etudiant_profil');
+        }
+
+        $this->container->get('security.token_storage')->setToken(null);
+        $entityManager->remove($etudiant);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Votre compte a été supprimé.');
+        return $this->redirectToRoute('login');
     }
 
     #[Route('/etudiant/offre/{id}/postuler', name: 'etudiant_offre_apply')]

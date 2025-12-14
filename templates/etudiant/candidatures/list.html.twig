@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes candidatures{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Mes candidatures</h2>
+        <div>
+            <a href="{{ path('etudiant_dashboard') }}" class="btn btn-secondary">Tableau de bord</a>
+        </div>
+    </div>
+
+    <div class="btn-group mb-3" role="group" aria-label="Filtrer par statut">
+        <a href="{{ path('etudiant_candidatures') }}" class="btn btn-outline-primary {% if not filterStatut %}active{% endif %}">Toutes <span class="badge bg-secondary">{{ total|default(0) }}</span></a>
+        <a href="{{ path('etudiant_candidatures', { statut: 'EN_ATTENTE' }) }}" class="btn btn-outline-primary {% if filterStatut == 'EN_ATTENTE' %}active{% endif %}">En attente <span class="badge bg-secondary">{{ enAttente|default(0) }}</span></a>
+        <a href="{{ path('etudiant_candidatures', { statut: 'ACCEPTEE' }) }}" class="btn btn-outline-primary {% if filterStatut == 'ACCEPTEE' %}active{% endif %}">Acceptées <span class="badge bg-secondary">{{ acceptees|default(0) }}</span></a>
+        <a href="{{ path('etudiant_candidatures', { statut: 'REFUSEE' }) }}" class="btn btn-outline-primary {% if filterStatut == 'REFUSEE' %}active{% endif %}">Refusées <span class="badge bg-secondary">{{ refusees|default(0) }}</span></a>
+    </div>
+
+    {% if candidatures is empty %}
+        <div class="alert alert-info">Vous n'avez pas encore postulé. <a href="{{ path('etudiant_offres_list') }}">Voir les offres</a></div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Offre</th>
+                        <th>Entreprise</th>
+                        <th>Date de soumission</th>
+                        <th>Statut</th>
+                        <th style="width: 220px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in candidatures %}
+                        <tr>
+                            <td>{{ c.offreDeStage.titre }}</td>
+                            <td>{{ c.offreDeStage.entreprise.nom }}</td>
+                            <td>{{ c.dateSoumission|date('d/m/Y H:i') }}</td>
+                            <td>
+                                {% set badge = c.statut == 'ACCEPTEE' ? 'success' : (c.statut == 'REFUSEE' ? 'danger' : 'secondary') %}
+                                <span class="badge bg-{{ badge }}">{{ c.statut }}</span>
+                            </td>
+                            <td>
+                                <a href="{{ path('etudiant_offre_show', { id: c.offreDeStage.id }) }}" class="btn btn-sm btn-primary">Voir l'offre</a>
+                                <form method="post" action="{{ path('etudiant_candidature_annuler', { id: c.id }) }}" style="display:inline;" onsubmit="return confirm('Confirmer l\'annulation de cette candidature ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('annuler' ~ c.id) }}">
+                                    {% if c.statut == 'EN_ATTENTE' %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Annuler</button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Vous ne pouvez annuler qu'une candidature en attente">Annuler</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
