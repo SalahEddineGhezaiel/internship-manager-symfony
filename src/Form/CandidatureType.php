@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Length;
 use App\Entity\Candidature;
 
 class CandidatureType extends AbstractType
@@ -20,6 +21,12 @@ class CandidatureType extends AbstractType
                 'label' => 'Lettre de motivation',
                 'constraints' => [
                     new NotBlank(['message' => 'La lettre de motivation est requise']),
+                    new Length([
+                        'min' => 50,
+                        'max' => 200,
+                        'minMessage' => 'La lettre de motivation doit contenir au moins {{ limit }} caractères',
+                        'maxMessage' => 'La lettre de motivation doit contenir au plus {{ limit }} caractères',
+                    ]),
                 ],
                 'attr' => ['rows' => 6],
             ])
