@@ -26,18 +26,33 @@ class CandidatureType extends AbstractType
             ->add('cvFichier', FileType::class, [
                 'label' => 'CV (PDF ou DOCX)',
                 'mapped' => false,
-                'constraints' => [
-                    new NotBlank(['message' => 'Le CV est requis']),
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                            'application/msword',
-                        ],
-                        'mimeTypesMessage' => 'Veuillez téléverser un fichier PDF ou DOC/DOCX valide',
-                    ]),
-                ],
+                'constraints' => (function () {
+                    $maxSize = '5M';
+                    $notBlank = new NotBlank(['message' => 'Le CV est requis']);
+                    if (\extension_loaded('fileinfo')) {
+                        return [
+                            $notBlank,
+                            new File([
+                                'maxSize' => $maxSize,
+                                'mimeTypes' => [
+                                    'application/pdf',
+                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                    'application/msword',
+                                ],
+                                'mimeTypesMessage' => 'Veuillez téléverser un fichier PDF ou DOC/DOCX valide',
+                            ]),
+                        ];
+                    }
+                    // Fallback: validate by extension when fileinfo is unavailable
+                    return [
+                        $notBlank,
+                        new File([
+                            'maxSize' => $maxSize,
+                            'extensions' => ['pdf', 'doc', 'docx'],
+                            'extensionsMessage' => 'Veuillez téléverser un fichier avec une extension .pdf, .doc ou .docx',
+                        ]),
+                    ];
+                })(),
             ])
         ;
     }
