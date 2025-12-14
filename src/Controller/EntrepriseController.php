@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Entreprise;
 use App\Entity\OffreDeStage;
+use App\Form\ChangePasswordType;
 use App\Form\EntrepriseRegistrationType;
 use App\Form\OffreDeStageType;
 use App\Entity\Candidature;
@@ -94,6 +95,61 @@ class EntrepriseController extends AbstractController
         return $this->render('entreprise/register.html.twig', [
             'form' => $form,
         ]);
+    }
+
+    #[Route('/entreprise/profil', name: 'entreprise_profil')]
+    #[IsGranted('ROLE_ENTREPRISE')]
+    public function profil(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        $entreprise = $this->getUser();
+
+        $passwordForm = $this->createForm(ChangePasswordType::class);
+        $passwordForm->handleRequest($request);
+
+        if ($passwordForm->isSubmitted() && $passwordForm->isValid()) {
+            $current = $passwordForm->get('currentPassword')->getData();
+            if (!$passwordHasher->isPasswordValid($entreprise, $current)) {
+                $this->addFlash('danger', 'Mot de passe actuel incorrect');
+                return $this->redirectToRoute('entreprise_profil');
+            }
+
+            $new = $passwordForm->get('newPassword')->getData();
+            $entreprise->setMotDePasse($passwordHasher->hashPassword($entreprise, $new));
+            $entityManager->flush();
+            $this->addFlash('success', 'Mot de passe mis à jour');
+            return $this->redirectToRoute('entreprise_profil');
+        }
+
+        return $this->render('entreprise/profil/show.html.twig', [
+            'entreprise' => $entreprise,
+            'passwordForm' => $passwordForm,
+        ]);
+    }
+
+    #[Route('/entreprise/profil/delete', name: 'entreprise_delete_account', methods: ['POST'])]
+    #[IsGranted('ROLE_ENTREPRISE')]
+    public function deleteAccount(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $entreprise = $this->getUser();
+        if (!$this->isCsrfTokenValid('delete_account'.$entreprise->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('entreprise_profil');
+        }
+
+        if ($entreprise->getOffreDeStages()->count() > 0) {
+            $this->addFlash('danger', 'Impossible de supprimer le compte: des offres existent. Supprimez d\'abord vos offres.');
+            return $this->redirectToRoute('entreprise_profil');
+        }
+
+        $this->container->get('security.token_storage')->setToken(null);
+        $entityManager->remove($entreprise);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Votre compte a été supprimé.');
+        return $this->redirectToRoute('login');
     }
 
     #[Route('/entreprise/offres', name: 'entreprise_offres_list')]

@@ -33,6 +33,7 @@
                         <th>Date de début</th>
                         <th>Date de fin</th>
                         <th>Statut</th>
+                        <th>Candidatures</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -49,6 +50,9 @@
                                 {% else %}
                                     <span class="badge bg-danger">Inactive</span>
                                 {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ offre.candidatures|length }}</span>
                             </td>
                             <td>
                                 <a href="#" class="btn btn-sm btn-info" title="Voir">
