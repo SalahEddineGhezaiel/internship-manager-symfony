@@ -4,12 +4,7 @@
 
 {% block body %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Détails de l'offre</h2>
-        <div>
-            <a href="{{ path('visiteur_offres_list') }}" class="btn btn-secondary">Retour aux offres</a>
-        </div>
-    </div>
+    <h2 class="h4 mb-3">Détails de l'offre</h2>
 
     <div class="card">
         <div class="card-header"><strong>{{ offre.titre }}</strong></div>
@@ -34,8 +29,7 @@
             <h5>Description</h5>
             <div class="alert alert-light">{{ offre.description|nl2br }}</div>
         </div>
-        <div class="card-footer d-flex justify-content-between">
-            <a href="{{ path('visiteur_offres_list') }}" class="btn btn-secondary">Voir toutes les offres</a>
+        <div class="card-footer text-end">
             <a href="{{ path('login') }}" class="btn btn-primary">Se connecter pour postuler</a>
         </div>
     </div>

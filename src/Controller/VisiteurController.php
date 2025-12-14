@@ -19,15 +19,6 @@ class VisiteurController extends AbstractController
         ]);
     }
 
-    #[Route('/visiteur/offres', name: 'visiteur_offres_list')]
-    public function listOffres(OffreDeStageRepository $offreRepository): Response
-    {
-        $offres = $offreRepository->findActiveOffres();
-        return $this->render('visiteur/offres/list.html.twig', [
-            'offres' => $offres,
-        ]);
-    }
-
     #[Route('/visiteur/offre/{id}', name: 'visiteur_offre_show')]
     public function showOffre(OffreDeStage $offre): Response
     {
