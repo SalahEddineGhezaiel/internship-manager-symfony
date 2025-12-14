@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques — Admin{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Statistiques</h2>
+        <div>
+            <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">Tableau de bord</a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3"><div class="card"><div class="card-body"><h6>Total utilisateurs</h6><div class="display-6">{{ kpis.totalUsers }}</div></div></div></div>
+        <div class="col-md-3"><div class="card"><div class="card-body"><h6>Étudiants</h6><div class="display-6">{{ kpis.totalStudents }}</div></div></div></div>
+        <div class="col-md-3"><div class="card"><div class="card-body"><h6>Entreprises</h6><div class="display-6">{{ kpis.totalCompanies }}</div></div></div></div>
+        <div class="col-md-3"><div class="card"><div class="card-body"><h6>Offres</h6><div class="display-6">{{ kpis.totalOffers }}</div></div></div></div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4"><div class="card"><div class="card-body"><h6>Offres actives</h6><div class="display-6">{{ kpis.activeOffers }}</div></div></div></div>
+        <div class="col-md-4"><div class="card"><div class="card-body"><h6>Offres inactives</h6><div class="display-6">{{ kpis.inactiveOffers }}</div></div></div></div>
+        <div class="col-md-4"><div class="card"><div class="card-body"><h6>Candidatures (en attente / acceptées / refusées)</h6><div class="display-6">{{ kpis.pendingApps }} / {{ kpis.acceptedApps }} / {{ kpis.rejectedApps }}</div></div></div></div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Top entreprises par nombre d'offres</div>
+                <div class="card-body p-0">
+                    <table class="table mb-0">
+                        <thead><tr><th>Entreprise</th><th class="text-end">Offres</th></tr></thead>
+                        <tbody>
+                        {% for row in topCompanies %}
+                            <tr>
+                                <td>{{ row.entreprise.nom }}</td>
+                                <td class="text-end">{{ row.nbOffres }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="2" class="text-center text-muted">Aucune donnée</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Top offres par nombre de candidatures</div>
+                <div class="card-body p-0">
+                    <table class="table mb-0">
+                        <thead><tr><th>Offre</th><th>Entreprise</th><th class="text-end">Candidatures</th></tr></thead>
+                        <tbody>
+                        {% for row in topOffers %}
+                            <tr>
+                                <td>{{ row.offre.titre }}</td>
+                                <td>{{ row.offre.entreprise.nom }}</td>
+                                <td class="text-end">{{ row.nbCandidatures }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="3" class="text-center text-muted">Aucune donnée</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">Évolution des offres et candidatures (6 derniers mois)</div>
+        <div class="card-body">
+            <canvas id="statsChart" height="90"></canvas>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = {{ labels|json_encode|raw }};
+        const offersSeries = {{ offersSeries|json_encode|raw }};
+        const appsSeries = {{ appsSeries|json_encode|raw }};
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Offres',
+                        data: offersSeries,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Candidatures',
+                        data: appsSeries,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    </script>
+{% endblock %}
